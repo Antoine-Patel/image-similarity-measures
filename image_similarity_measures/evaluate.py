@@ -5,8 +5,7 @@ import os
 
 import cv2
 import numpy as np
-import rasterio as rio
-
+import tifffile
 from image_similarity_measures.quality_metrics import metric_functions
 
 logger = logging.getLogger(__name__)
@@ -14,13 +13,25 @@ logger = logging.getLogger(__name__)
 
 def read_image(path):
     logger.info("Reading image %s", os.path.basename(path))
+    imread = cv2.imread
     if path.endswith(".tif") or path.endswith(".tiff"):
-        return np.rollaxis(rio.open(path).read(), 0, 3)
-    return cv2.imread(path)
+        imread = tifffile.imread
+
+    return imread(path)
 
 
 def evaluation(org_img_path, pred_img_path, metrics):
     output_dict = {}
+
+    # User-friendly error if an image is not found.
+    msg = "Wrong path to image (file not found): {}."
+    if not os.path.isfile(org_img_path):
+        msg = msg.format(org_img_path)
+        raise FileNotFoundError(msg)
+    if not os.path.isfile(pred_img_path):
+        msg = msg.format(pred_img_path)
+        raise FileNotFoundError(msg)
+
     org_img = read_image(org_img_path)
     pred_img = read_image(pred_img_path)
 

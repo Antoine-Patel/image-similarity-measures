@@ -1,5 +1,5 @@
 numpy
-rasterio
+tifffile
 scikit-image
 opencv-python
 pyfftw
